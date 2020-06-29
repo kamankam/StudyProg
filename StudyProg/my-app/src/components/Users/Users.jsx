@@ -1,9 +1,15 @@
 import React from "react";
-import styles from "./users.module.css";
 import * as axios from "axios";
-import userPhoto from "../../../src/assets/images/user.jpg";
+import Users from "./Users";
+import {
+  folowActionCreator,
+  unfolowActionCreator,
+  setUsersActionCreator,
+  setCurrentPageActionCreator,
+} from "../../redux/users-reducer";
+import { connect } from "react-redux";
 
-class Users extends React.Component {
+class UsersContainer extends React.Component {
   constructor(props) {
     super(props);
   }
@@ -29,71 +35,47 @@ class Users extends React.Component {
   };
 
   render() {
-    let pagesCount = Math.ceil(
-      this.props.totalUsersCount / this.props.pageSize
-    );
-    let pages = [];
-    for (let i = 1; i <= pagesCount; i += 1) {
-      pages.push(i);
-    }
     return (
-      <div>
-        <div>
-          {pages.map((p) => {
-            return (
-              <span
-                className={this.props.currentPage === p && styles.selectedPage}
-                onClick={(e) => {
-                  this.onPageChanged(p);
-                }}
-              >
-                {p}
-              </span>
-            );
-          })}
-        </div>
-
-        {this.props.users.map((u) => (
-          <div key={u.id.value}>
-            <span>
-              <div>
-                <img
-                  src={u.picture.medium != null ? u.picture.medium : userPhoto}
-                  className={styles.userPhoto}
-                />
-              </div>
-              <div>
-                {u.followed ? (
-                  <button
-                    onClick={() => {
-                      this.props.unfollow(u.id.value);
-                    }}
-                  >
-                    unfollow
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => {
-                      this.props.follow(u.id.value);
-                    }}
-                  >
-                    follow
-                  </button>
-                )}
-              </div>
-            </span>
-            <span>
-              <div>{u.name.first}</div>
-              {/* // <div>{u.status}</div> */}
-            </span>
-            <span>
-              <div>{"u.location.city"}</div>
-              <div>{"u.location.street"}</div>
-            </span>
-          </div>
-        ))}
-      </div>
+      <Users
+        totalUsersCount={this.props.totalUsersCount}
+        pageSize={this.props.pageSize}
+        currentPage={this.props.currentPage}
+        onPageChanged={this.onPageChanged}
+        users={this.props.users}
+      />
     );
   }
 }
-export default Users;
+
+let mapStateToProps = (state) => {
+  return {
+    users: state.usersPage.users,
+    pageSize: state.usersPage.pageSize,
+    totalUsersCount: state.usersPage.totalUsersCount,
+    currentPage: state.usersPage.currentPage,
+  };
+};
+
+let mapDispatchToProps = (dispatch) => {
+  return {
+    follow: (userId) => {
+      dispatch(folowActionCreator(userId));
+    },
+    unfollow: (userId) => {
+      dispatch(unfolowActionCreator(userId));
+    },
+    setUsers: (users) => {
+      dispatch(setUsersActionCreator(users));
+    },
+    setCurrentPage: (currentPage) => {
+      dispatch(setCurrentPageActionCreator(currentPage));
+    },
+  };
+};
+
+const UsersConteiner = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(UsersContainer);
+
+export default UsersConteiner;

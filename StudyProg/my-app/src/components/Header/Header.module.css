@@ -1,0 +1,8 @@
+.header {
+  grid-area: h;
+  background-color: khaki;
+  grid-row-gap: 1em;
+}
+.header img {
+  width: 80px;
+}
